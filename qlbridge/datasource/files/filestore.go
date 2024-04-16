@@ -81,6 +81,12 @@ type Row interface {
 	Value(col string) interface{}
 }
 
+//fuction that adds two numbers
+func Add(a int, b int) int {
+	return a + b
+}
+
+
 // FileStoreLoader defines the interface for loading files
 func FileStoreLoader(ss *schema.Schema) (cloudstorage.StoreReader, error) {
 	if ss == nil || ss.Conf == nil {
