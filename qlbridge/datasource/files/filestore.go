@@ -43,6 +43,86 @@ func init() {
 	RegisterFileStore("localfs", createLocalFileStore)
 }
 
+//sort all items 
+// 1.  by schema
+// 2.  by table
+// 3.  by column
+// 4.  by row
+//
+//  schema:  name, tables
+//  table:   name, columns
+//  column:  name, type
+//  row:     values
+type File struct {
+	Name    string
+	Schema  string
+	Columns []string
+}
+
+// FileHandler is a handler interface for handling file objects
+type FileHandler interface {
+	// FileScanner creates a scanner for this file
+	FileScanner(f *File) (FileScanner, error)
+}
+
+// FileScanner defines a scanner interface for file objects
+type FileScanner interface {
+	// Next gets the next row from the file
+	Next() (Row, error)
+}
+
+// Row defines a row interface for file objects
+type Row interface {
+	// Value gets the value of a column
+	Value(col string) interface{}
+}
+
+// FileStoreLoader defines the interface for loading files
+func FileStoreLoader(ss *schema.Schema) (cloudstorage.StoreReader, error) {
+	if ss == nil || ss.Conf == nil {
+		return nil, fmt.Errorf("No config info for files source for %v", ss)
+	}
+
+	//u.Debugf("json conf:\n%s", ss.Conf.Settings.PrettyJson())
+	storeType := ss.Conf.Settings.String("type")
+	if storeType == "" {
+		return nil, fmt.Errorf("Expected 'type' in File Store definition conf")
+	}
+
+	fileStoreMu.Lock()
+	storeType = strings.ToLower(storeType)
+	fs, ok := fileStores[storeType]
+	fileStoreMu.Unlock()
+
+	if !ok {
+		return nil, fmt.Errorf("Unrecognized filestore type %q expected [gcs,localfs]", storeType)
+	}
+
+	return fs(ss)
+}
+
+// FileStoreCreator defines a Factory type for creating FileStore
+type FileStoreCreator func(*schema.Schema) (FileStore, error)
+
+// FileStore Defines handler for reading Files, understanding
+// folders and how to create scanners/formatters for files.
+// Created by FileStoreCreator
+//
+// FileStoreCreator(schema) -> FileStore
+//
+//	FileStore.Objects() -> File
+//	         FileHandler(File) -> FileScanner
+//	              FileScanner.Next() ->  Row
+type FileStore interface {
+	cloudstorage.StoreReader
+}
+
+// RegisterFileStore global registry for Registering
+// implementations of FileStore factories of the provided @storeType
+func RegisterFileStore(storeType string, fs FileStoreCreator) {
+	if fs == nil {
+		panic("FileStore must
+
 // FileStoreLoader defines the interface for loading files
 func FileStoreLoader(ss *schema.Schema) (cloudstorage.StoreReader, error) {
 	if ss == nil || ss.Conf == nil {
