@@ -86,6 +86,12 @@ func Add(a int, b int) int {
 	return a + b
 }
 
+//function that adds three numbers
+func AddThree(a int, b int, c int) int {
+	return a + b + c
+}
+
+
 
 // FileStoreLoader defines the interface for loading files
 func FileStoreLoader(ss *schema.Schema) (cloudstorage.StoreReader, error) {
