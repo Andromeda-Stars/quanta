@@ -65,6 +65,10 @@ type FileHandler interface {
 	FileScanner(f *File) (FileScanner, error)
 }
 
+//making a change
+//making another change
+
+
 // FileScanner defines a scanner interface for file objects
 type FileScanner interface {
 	// Next gets the next row from the file
