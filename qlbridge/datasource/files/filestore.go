@@ -32,11 +32,17 @@ var (
 	}
 )
 
+
 var (
 	// the global filestore registry mutex
 	fileStoreMu sync.Mutex
 	fileStores  = make(map[string]FileStoreCreator)
 )
+
+//function for adding four numbers
+func AddFour(a int, b int, c int, d int) int {
+	return a + b + c + d
+}
 
 func init() {
 	RegisterFileStore("gcs", createGCSFileStore)
